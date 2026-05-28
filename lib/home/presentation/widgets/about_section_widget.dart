@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:portfolio_projct/core/theme/app_color.dart';
 import 'package:portfolio_projct/core/theme/app_text_style.dart';
 
 class AboutSection extends StatefulWidget {
@@ -11,10 +12,10 @@ class AboutSection extends StatefulWidget {
 class _AboutSectionState extends State<AboutSection>
     with SingleTickerProviderStateMixin {
   late final AnimationController _ctrl;
-  late final Animation<double> _fadeProfile;
-  late final Animation<Offset> _slideProfile;
   late final Animation<double> _fadeDetails;
   late final Animation<Offset> _slideDetails;
+  late final Animation<double> _fadeCta;
+  late final Animation<Offset> _slideCta;
 
   @override
   void initState() {
@@ -23,18 +24,6 @@ class _AboutSectionState extends State<AboutSection>
       vsync: this,
       duration: const Duration(milliseconds: 900),
     );
-
-    _fadeProfile = CurvedAnimation(
-      parent: _ctrl,
-      curve: const Interval(0.0, 0.5, curve: Curves.easeOut),
-    );
-    _slideProfile =
-        Tween<Offset>(begin: const Offset(0, 0.05), end: Offset.zero).animate(
-          CurvedAnimation(
-            parent: _ctrl,
-            curve: const Interval(0.0, 0.5, curve: Curves.easeOutQuint),
-          ),
-        );
 
     _fadeDetails = CurvedAnimation(
       parent: _ctrl,
@@ -45,6 +34,18 @@ class _AboutSectionState extends State<AboutSection>
           CurvedAnimation(
             parent: _ctrl,
             curve: const Interval(0.3, 1.0, curve: Curves.easeOutQuint),
+          ),
+        );
+
+    _fadeCta = CurvedAnimation(
+      parent: _ctrl,
+      curve: const Interval(0.55, 1.0, curve: Curves.easeOut),
+    );
+    _slideCta = Tween<Offset>(begin: const Offset(0, 0.08), end: Offset.zero)
+        .animate(
+          CurvedAnimation(
+            parent: _ctrl,
+            curve: const Interval(0.55, 1.0, curve: Curves.easeOutQuint),
           ),
         );
 
@@ -64,134 +65,195 @@ class _AboutSectionState extends State<AboutSection>
     return Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 1024),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 48),
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final isNarrow = constraints.maxWidth < 800;
-
-              final profile = FadeTransition(
-                opacity: _fadeProfile,
-                child: SlideTransition(
-                  position: _slideProfile,
-                  child: _ProfilePanel(colorScheme: colorScheme),
-                ),
-              );
-
-              final details = FadeTransition(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              FadeTransition(
                 opacity: _fadeDetails,
                 child: SlideTransition(
                   position: _slideDetails,
                   child: _DetailsPanel(colorScheme: colorScheme),
                 ),
-              );
-
-              return isNarrow
-                  ? Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [profile, const SizedBox(height: 48), details],
-                    )
-                  : Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(width: 320, child: profile),
-                        const SizedBox(width: 64),
-                        Expanded(child: details),
-                      ],
-                    );
-            },
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _SaaSCard extends StatelessWidget {
-  final Widget child;
-  final ColorScheme colorScheme;
-
-  const _SaaSCard({required this.child, required this.colorScheme});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(32),
-      decoration: BoxDecoration(
-        color: colorScheme.surface,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: colorScheme.outlineVariant.withValues(alpha: 0.4),
-          width: 1,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: colorScheme.shadow.withValues(alpha: 0.04),
-            blurRadius: 24,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: child,
-    );
-  }
-}
-
-class _ProfilePanel extends StatelessWidget {
-  const _ProfilePanel({required this.colorScheme});
-
-  final ColorScheme colorScheme;
-
-  @override
-  Widget build(BuildContext context) {
-    return _SaaSCard(
-      colorScheme: colorScheme,
-      child: Semantics(
-        label: 'Profil Singkat',
-        child: Column(
-          children: [
-            Container(
-              width: 140,
-              height: 140,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: colorScheme.surfaceContainerHighest,
-                border: Border.all(
-                  color: colorScheme.outlineVariant.withValues(alpha: 0.5),
-                  width: 4,
-                ),
-                image: const DecorationImage(
-                  // Ganti dengan URL/asset foto asli kamu nanti
-                  image: NetworkImage('https://via.placeholder.com/200'),
-                  fit: BoxFit.cover,
+              ),
+              const SizedBox(height: 24),
+              FadeTransition(
+                opacity: _fadeCta,
+                child: SlideTransition(
+                  position: _slideCta,
+                  child: _CtaPanel(colorScheme: colorScheme),
                 ),
               ),
-            ),
-            const SizedBox(height: 24),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _DetailsPanel extends StatelessWidget {
+  const _DetailsPanel({required this.colorScheme});
+
+  final ColorScheme colorScheme;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Row(
+          children: [
+            Icon(Icons.person_outline, color: colorScheme.primary, size: 28),
+            const SizedBox(width: 12),
             Text(
-              "Rudi Wicaksono",
-              style: AppTextStyle.headlineSmall.copyWith(
+              'About Me',
+              style: AppTextStyle.titleLarge.copyWith(
                 color: colorScheme.onSurface,
                 fontWeight: FontWeight.w700,
                 letterSpacing: -0.5,
               ),
-              textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 4),
+          ],
+        ),
+        const SizedBox(height: 16),
+        SelectableText(
+          'I am a Flutter Developer focused on building responsive applications '
+          'with clean architecture. I have experience developing products from '
+          'concept to production release across Android, iOS, and the web.',
+          style: AppTextStyle.bodyLarge.copyWith(
+            height: 1.45,
+            color: AppColors.primaryContainer,
+          ),
+        ),
+        const SizedBox(height: 10),
+        SelectableText(
+          'I always prioritize maintainable, test-driven code with a strong focus '
+          'on accessibility and performance. I am currently open to collaboration.',
+          style: AppTextStyle.bodyLarge.copyWith(
+            height: 1.45,
+            color: AppColors.primaryContainer,
+          ),
+        ),
+        const SizedBox(height: 20),
+        Divider(color: colorScheme.outlineVariant.withValues(alpha: 0.3)),
+        const SizedBox(height: 20),
+
+        Row(
+          children: [
+            Icon(Icons.code_rounded, color: colorScheme.primary, size: 28),
+            const SizedBox(width: 12),
             Text(
-              'Flutter Developer',
-              style: AppTextStyle.titleMedium.copyWith(
-                color: colorScheme.primary,
-                fontWeight: FontWeight.w500,
+              'Tech Stack',
+              style: AppTextStyle.titleLarge.copyWith(
+                color: colorScheme.onSurface,
+                fontWeight: FontWeight.w700,
+                letterSpacing: -0.5,
               ),
             ),
-            const SizedBox(height: 24),
-            Divider(color: colorScheme.outlineVariant.withValues(alpha: 0.3)),
-            const SizedBox(height: 24),
+          ],
+        ),
+        const SizedBox(height: 20),
+        Wrap(
+          spacing: 8,
+          runSpacing: 10,
+          children: const [
+            _SkillChip(label: 'Flutter'),
+            _SkillChip(label: 'Dart'),
+            _SkillChip(label: 'BLoC'),
+            _SkillChip(label: 'Firebase'),
+            _SkillChip(label: 'REST API'),
+            _SkillChip(label: 'Git'),
+            _SkillChip(label: 'Clean Architecture'),
+          ],
+        ),
+        const SizedBox(height: 20),
+        Divider(color: colorScheme.outlineVariant.withValues(alpha: 0.3)),
+
+        const SizedBox(height: 20),
+
+        Row(
+          children: [
+            Icon(
+              Icons.work_outline_rounded,
+              color: colorScheme.primary,
+              size: 28,
+            ),
+            const SizedBox(width: 12),
+            Text(
+              'Experience',
+              style: AppTextStyle.titleLarge.copyWith(
+                color: colorScheme.onSurface,
+                fontWeight: FontWeight.w700,
+                letterSpacing: -0.5,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 24),
+        const _TimelineItem(
+          year: '2021 — Present',
+          title: 'Freelance Mobile Developer',
+          desc:
+              'Developing applications and collaborating with teams remotely.',
+        ),
+        const SizedBox(height: 18),
+        const _TimelineItem(
+          year: '2019 — 2021',
+          title: 'Frontend Developer',
+          desc:
+              'Worked on UI/UX, API integration, and maintaining legacy applications.',
+        ),
+      ],
+    );
+  }
+}
+
+class _CtaPanel extends StatelessWidget {
+  const _CtaPanel({required this.colorScheme});
+
+  final ColorScheme colorScheme;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Divider(color: colorScheme.outlineVariant.withValues(alpha: 0.3)),
+        const SizedBox(height: 18),
+        Row(
+          children: [
+            Icon(Icons.send_outlined, color: colorScheme.primary, size: 24),
+            const SizedBox(width: 12),
+            Text(
+              'Let’s Work Together',
+              style: AppTextStyle.titleLarge.copyWith(
+                color: colorScheme.onSurface,
+                fontWeight: FontWeight.w700,
+                letterSpacing: -0.5,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Text(
+          'If you have a project idea or want to discuss a collaboration, feel free to reach out.',
+          style: AppTextStyle.bodyLarge.copyWith(
+            height: 1.45,
+            color: colorScheme.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(height: 18),
+        Wrap(
+          spacing: 12,
+          runSpacing: 10,
+          alignment: WrapAlignment.start,
+          children: [
             SizedBox(
-              width: double.infinity,
+              width: 180,
               height: 44,
               child: FilledButton.icon(
                 onPressed: () {},
@@ -205,9 +267,8 @@ class _ProfilePanel extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 12),
             SizedBox(
-              width: double.infinity,
+              width: 180,
               height: 44,
               child: OutlinedButton.icon(
                 onPressed: () {},
@@ -225,127 +286,7 @@ class _ProfilePanel extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _DetailsPanel extends StatelessWidget {
-  const _DetailsPanel({required this.colorScheme});
-
-  final ColorScheme colorScheme;
-
-  @override
-  Widget build(BuildContext context) {
-    return _SaaSCard(
-      colorScheme: colorScheme,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Row(
-            children: [
-              Icon(Icons.person_outline, color: colorScheme.primary, size: 28),
-              const SizedBox(width: 12),
-              Text(
-                'About Me',
-                style: AppTextStyle.titleLarge.copyWith(
-                  color: colorScheme.onSurface,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: -0.5,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          SelectableText(
-            'Saya seorang Flutter Developer yang berfokus membangun aplikasi responsif '
-            'dengan arsitektur bersih (Clean Architecture). Berpengalaman dalam '
-            'mengembangkan produk dari tahap konsepsi hingga rilis produksi di Android, iOS, maupun Web.',
-            style: AppTextStyle.bodyLarge.copyWith(
-              height: 1.6,
-              color: colorScheme.onSurfaceVariant,
-            ),
-          ),
-          const SizedBox(height: 12),
-          SelectableText(
-            'Selalu memprioritaskan kode yang mudah dipelihara, test-driven, dan memperhatikan aksesibilitas '
-            'serta performa tinggi. Saat ini terbuka untuk kolaborasi.',
-            style: AppTextStyle.bodyLarge.copyWith(
-              height: 1.6,
-              color: colorScheme.onSurfaceVariant,
-            ),
-          ),
-          const SizedBox(height: 32),
-          Divider(color: colorScheme.outlineVariant.withValues(alpha: 0.3)),
-          const SizedBox(height: 32),
-
-          Row(
-            children: [
-              Icon(Icons.code_rounded, color: colorScheme.primary, size: 28),
-              const SizedBox(width: 12),
-              Text(
-                'Tech Stack',
-                style: AppTextStyle.titleLarge.copyWith(
-                  color: colorScheme.onSurface,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: -0.5,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          Wrap(
-            spacing: 8,
-            runSpacing: 12,
-            children: const [
-              _SkillChip(label: 'Flutter'),
-              _SkillChip(label: 'Dart'),
-              _SkillChip(label: 'Riverpod'),
-              _SkillChip(label: 'BLoC'),
-              _SkillChip(label: 'Firebase'),
-              _SkillChip(label: 'REST API'),
-              _SkillChip(label: 'Git'),
-            ],
-          ),
-          const SizedBox(height: 32),
-          Divider(color: colorScheme.outlineVariant.withValues(alpha: 0.3)),
-          const SizedBox(height: 32),
-
-          Row(
-            children: [
-              Icon(
-                Icons.work_outline_rounded,
-                color: colorScheme.primary,
-                size: 28,
-              ),
-              const SizedBox(width: 12),
-              Text(
-                'Experience',
-                style: AppTextStyle.titleLarge.copyWith(
-                  color: colorScheme.onSurface,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: -0.5,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 24),
-          const _TimelineItem(
-            year: '2021 — Present',
-            title: 'Freelance Mobile Developer',
-            desc:
-                'Mengembangkan aplikasi dan berkolaborasi dalam tim secara remote.',
-          ),
-          const SizedBox(height: 24),
-          const _TimelineItem(
-            year: '2019 — 2021',
-            title: 'Frontend Developer',
-            desc:
-                'Berperan dalam UI/UX, integrasi API, serta pemeliharaan legacy app.',
-          ),
-        ],
-      ),
+      ],
     );
   }
 }
