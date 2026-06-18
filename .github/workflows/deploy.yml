@@ -1,0 +1,39 @@
+name: Deploy Flutter to Build Branch
+
+on:
+  push:
+    branches:
+      - dev # Trigger saat ada push ke branch dev. Sesuaikan jika branch utama kamu bernama 'master'
+  workflow_dispatch: # Mengizinkan workflow dijalankan secara manual dari tab Actions
+
+permissions:
+  contents: write # Diperlukan agar GitHub Actions memiliki izin untuk melakukan push ke branch lain
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true # Mempercepat proses dengan melakukan caching pada environment Flutter
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build Flutter Web
+        # Jika kamu melakukan hosting di sub-path (misal: domain.com/app/), sesuaikan --base-href "/app/"
+        run: flutter build web --release --base-href "/"
+
+      - name: Deploy to build branch
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./build/web # Folder hasil build dari perintah sebelumnya
+          publish_branch: build # Branch target untuk hasil deploy
+          force_orphan: true # Membuat branch build hanya berisi satu commit terbaru agar repository tidak membengkak
